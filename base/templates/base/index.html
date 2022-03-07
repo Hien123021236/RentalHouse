@@ -1,0 +1,193 @@
+{% extends "base/layout.html" %} 
+
+{% block style %}
+
+<style>
+  img{
+    width:200px;
+    height:200px;
+  }
+  .info{
+    position : absolute;
+    top:0;
+    left:0;
+    padding :20px;
+    width : 200px;
+    height:200px;
+  }
+  .image{
+    left: 100px;
+    position: relative;
+  }
+</style>
+
+{% endblock style %}
+
+{% block body %}
+<h4>Recommender System</h4>
+
+<button id="recommend-btn" onclick="recommend()">Recommend</button>
+
+<div class="row" >
+  <div class="col-6">
+    <div id="d1">
+      <div>
+        <span class="id"></span>
+        <input type="radio" value="0" name="floor">
+      </div>
+      <div style="position:relative;">
+        <div class ="image"><img src="../../static/base/img/1.jpg" alt=""></div>
+        <div class="info">
+          <div>Floor : <span class="floor"></span></div>
+          <div>Age : <span class="age"></span></div>
+        </div>    
+      </div>     
+    </div>
+  </div>
+  <div class="col-6">
+    <div id="d2">
+      <div>
+        <span class="id"></span>
+        <input type="radio"  value="1" name="floor">
+      </div>
+      <div style="position:relative;">
+        <div class ="image"><img src="../../static/base/img/2.jpg" alt=""></div>
+        <div class="info">
+          <div>Floor : <span class="floor"></span></div>
+          <div>Age : <span class="age"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row" >
+  <div class="col-6">
+    <div id="d3">
+      <div>
+        <span class="id"></span>
+        <input type="radio"  value="0" name="age">
+      </div>
+      <div style="position:relative;">
+        <div class ="image"><img src="../../static/base/img/3.jpg" alt=""></div>
+        <div class="info">
+          <div>Floor : <span class="floor"></span></div>
+          <div>Age : <span class="age"></span></div>
+        </div>
+      </div>      
+    </div>
+  </div>
+  <div class="col-6">
+    <div id="d4">
+      <div>
+        <span class="id"></span>
+        <input type="radio"  value="1" name="age">
+      </div>
+      <div style="position:relative;">
+        <div class ="image"><img src="../../static/base/img/4.jpg" alt=""></div>
+        <div class="info">
+          <div>Floor : <span class="floor"></span></div>
+          <div>Age : <span class="age"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button onclick="submit()">Submit</button>
+{% comment %} <p>Clicks: <a id="clicks">0</a></p> {% endcomment %}
+<div id="result"></div>
+
+<script>
+  var clicks = 0;
+  function recommend(){
+    $.ajax({
+        type: "GET",
+        url: "/base/ajax/recommender/",
+        success: function(data){
+            if(data!=null){
+              if(data.completed == true){
+                alert("Done")
+              }
+              let floor0 = JSON.parse(data.floor[0]);
+              let floor1 = JSON.parse(data.floor[1]);
+              let age0 = JSON.parse(data.age[0]);
+              let age1 = JSON.parse(data.age[1]);
+  
+              $('#d1 .id').text(Object.keys(floor0.unit_floor)[0])
+              $('#d2 .id').text(Object.keys(floor1.unit_floor)[0])
+              $('#d3 .id').text(Object.keys(age0.property_age)[0])
+              $('#d4 .id').text(Object.keys(age1.property_age)[0])
+
+              $('#d1 .floor').text(Object.values(floor0.unit_floor)[0])
+              $('#d2 .floor').text(Object.values(floor1.unit_floor)[0])
+              $('#d3 .floor').text(Object.values(age0.unit_floor)[0])
+              $('#d4 .floor').text(Object.values(age1.unit_floor)[0])
+
+              $('#d1 .age').text(Object.values(floor0.property_age)[0])
+              $('#d2 .age').text(Object.values(floor1.property_age)[0])
+              $('#d3 .age').text(Object.values(age0.property_age)[0])
+              $('#d4 .age').text(Object.values(age1.property_age)[0])
+              $('#recommend-btn').hide();
+            }
+
+        },
+        error: function(data){
+            alert("Error")
+        }
+    })
+  }
+
+  function submit(){
+    //clicks += 1;
+    //document.getElementById("clicks").innerHTML = clicks;
+    $('button').prop('disabled', true);
+    $.ajax({
+        type: "POST",
+        url: "/base/ajax/unselectpoint/",
+        data: {
+          floor : $('input[name="floor"]:not(:checked)').val(),
+          age : $('input[name="age"]:not(:checked)').val(),
+          csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(data){
+          if(data!=null){
+            if(data.completed == false){
+              
+              let floor0 = JSON.parse(data.floor[0]);
+              let floor1 = JSON.parse(data.floor[1]);
+              let age0 = JSON.parse(data.age[0]);
+              let age1 = JSON.parse(data.age[1]);
+  
+              $('#d1 .id').text(Object.keys(floor0.unit_floor)[0])
+              $('#d2 .id').text(Object.keys(floor1.unit_floor)[0])
+              $('#d3 .id').text(Object.keys(age0.property_age)[0])
+              $('#d4 .id').text(Object.keys(age1.property_age)[0])
+
+              $('#d1 .floor').text(Object.values(floor0.unit_floor)[0])
+              $('#d2 .floor').text(Object.values(floor1.unit_floor)[0])
+              $('#d3 .floor').text(Object.values(age0.unit_floor)[0])
+              $('#d4 .floor').text(Object.values(age1.unit_floor)[0])
+
+              $('#d1 .age').text(Object.values(floor0.property_age)[0])
+              $('#d2 .age').text(Object.values(floor1.property_age)[0])
+              $('#d3 .age').text(Object.values(age0.property_age)[0])
+              $('#d4 .age').text(Object.values(age1.property_age)[0])
+  
+              $('button').prop('disabled', false);
+            }
+            else{
+              $('#result').html(data.data)
+            }
+          }
+        },
+        error: function(data){
+            alert("Error")
+        }
+    })
+  }
+
+
+</script>
+
+{% endblock %}
+
